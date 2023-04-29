@@ -1,0 +1,23 @@
+[run]
+branch = True
+source =
+    siteclaim
+
+omit =
+    */siteclaim/migrations/*
+    */siteclaim/audit_views/*
+    */siteclaim/task_helpers/*
+    */tests/*
+    */.tox/*
+    */bin/*
+
+[report]
+exclude_lines =
+    if self.debug:
+    pragma: no cover
+    raise NotImplementedError
+    if __name__ == .__main__.:
+    def __repr__
+    raise AssertionError
+
+ignore_errors = True
