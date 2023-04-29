@@ -32,6 +32,7 @@ setup(
         'Topic :: Internet :: WWW/HTTP :: Dynamic Content',
     ],
     install_requires=[
+        "allianceauth-discordbot>=3.4.0",
         "django-solo>=2.0.0"
     ],
 )
