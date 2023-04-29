@@ -1,0 +1,33 @@
+name: Deploy to PyPi
+
+on:
+  release:
+    types: [released, prereleased]
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: "3.9"
+
+      - name: install dependencies
+        run: make dev
+
+      - name: clean up
+        run: make clean
+
+      - name: Build Python
+        run: make package
+
+      - name: Uploade Package
+        if: ${{ !env.ACT }} # Don't run in a local test environment
+        env:
+          TWINE_USERNAME: __token__
+          TWINE_PASSWORD: ${{ secrets.PYPI_TOKEN }}
+        run: make deploy

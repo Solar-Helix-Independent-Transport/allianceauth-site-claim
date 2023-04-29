@@ -1,0 +1,56 @@
+# This is a basic workflow to help you get started with Actions
+name: CI
+
+# Controls when the workflow will run
+on:
+  push:
+    branches:
+      - "**"
+    tags-ignore:
+      - "**"
+  pull_request:
+    branches:
+      - "**"
+    tags-ignore:
+      - "**"
+  # Allows you to run this workflow manually from the Actions tab
+  workflow_dispatch:
+
+# A workflow run is made up of one or more jobs that can run sequentially or in parallel
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version: ["3.8", "3.9"]
+        # python-version: ['3.9']
+    steps:
+      - uses: actions/checkout@v2
+
+      #- uses: shogo82148/actions-setup-redis@v1
+      #  with:
+      #    redis-version: "latest"
+
+      #- run: redis-cli ping
+
+      - uses: actions/setup-python@v2
+        with:
+          python-version: ${{ matrix.python-version }}
+
+      - name: install dependencies
+        run: make dev
+
+      #- name: Run Tests
+      #  run: make test
+
+      #- name: Upload test coverage
+      #  if: ${{ !env.ACT }}
+      #  uses: actions/upload-artifact@v2.2.4
+      #  with:
+      #    # Artifact name
+      #    name: Python${{ matrix.python-version }} Test Coverage
+      #    # A file, directory or wildcard pattern that describes what to upload
+      #    path: htmlcov/
+
+      - name: Build Projects
+        run: make package
