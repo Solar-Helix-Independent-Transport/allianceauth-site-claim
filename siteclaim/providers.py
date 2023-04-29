@@ -1,8 +1,10 @@
-import re, csv
-from esi.clients import EsiClientProvider
-from . import providers, models
+import csv
+import re
 
 import requests
+from esi.clients import EsiClientProvider
+
+from . import models, providers
 
 
 class CSVLoader:
@@ -10,6 +12,7 @@ class CSVLoader:
         self.url = url
         self.data = []
         self.load_data()
+
     def load_data(self):
         with requests.get(self.url) as r:
             import re
@@ -17,13 +20,13 @@ class CSVLoader:
             out = pattern.sub(lambda x: x.group().replace('\n', ''), r.text)
             self.data = csv.DictReader(out.split("\r\n"))
 
+
 class EVEClient(EsiClientProvider):
 
     @staticmethod
     def chunk_ids(l, n=750):
         for i in range(0, len(l), n):
             yield l[i:i + n]
-
 
     def load_map_sde(self):
         regions = []

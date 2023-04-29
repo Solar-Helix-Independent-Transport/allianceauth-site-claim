@@ -1,23 +1,22 @@
 # Cog Stuff
-from collections import defaultdict
 import logging
+from collections import defaultdict
 from typing import Optional
-from aadiscordbot.cogs.utils.decorators import is_admin
 
+from aadiscordbot.cogs.utils.decorators import is_admin
+from aadiscordbot.tasks import send_channel_message_by_discord_id
 from allianceauth.eveonline.evelinks import dotlan
-from discord import AutocompleteContext, ButtonStyle, Embed, Interaction, option, ui, SlashCommandGroup
-from django.utils import timezone
+from allianceauth.services.modules.discord.models import DiscordUser
+from discord import (AutocompleteContext, ButtonStyle, Embed, Interaction,
+                     SlashCommandGroup, option, ui)
 from discord.embeds import Embed
 from discord.ext import commands
 from django.conf import settings
 from django.core.cache import cache
-
-from rapidfuzz import process, fuzz
-
-from allianceauth.services.modules.discord.models import DiscordUser
+from django.utils import timezone
+from rapidfuzz import fuzz, process
 
 from .. import app_settings, constants, models, tasks
-from aadiscordbot.tasks import send_channel_message_by_discord_id
 
 logger = logging.getLogger(__name__)
 
@@ -58,12 +57,12 @@ class ClaimView(ui.View):
         super().__init__(*items, timeout=timeout)
         logger.debug(self.id)
         db_model = models.Site.objects.create(
-            interaction_id=self.id, 
+            interaction_id=self.id,
             found_by_discord_uid=found_by_uid,
             found_by_discord=found_by,
             system_provided=system,
             site_id=site_id
-            )
+        )
         try:
             db_model.found_by = DiscordUser.objects.get(
                 uid=found_by_uid).user.profile.main_character
@@ -74,7 +73,6 @@ class ClaimView(ui.View):
         except:
             logger.warning('system not found')
         db_model.save()
-
 
     @ui.button(label="Claim", style=ButtonStyle.blurple)
     async def claim(self, button: ui.Button, interaction: Interaction):
@@ -186,21 +184,21 @@ class SiteClaim(commands.Cog):
         await ctx.defer(ephemeral=True)
         user = ctx.author
         msg_test = f"System:[{system}]({dotlan.solar_system_url(system)})\n\nSite ID:`{site}`"
-        
+
         # no dupes!
         if models.Site.objects.filter(
             system_provided=system,
             site_id=site
-            ).exists():
+        ).exists():
             return await ctx.respond(f"`{system}`:`{site}` has already been pinged!", ephemeral=True)
-        
+
         config: models.SiteClaimConfiguration = models.SiteClaimConfiguration.get_solo()
         output_channel = config.site_claim_output_channel if config.site_claim_output_channel else ctx.channel.id
         e = Embed(title="New Site", color=BLUE)
         e.description = msg_test
         e.add_field(name="Reported By",
                     value=f"{user.nick if user.nick else user.name}", inline=False)
-        
+
         view_str = "siteclaim.cogs.sites.ClaimView"
 
         send_channel_message_by_discord_id.delay(
@@ -211,8 +209,8 @@ class SiteClaim(commands.Cog):
             view_kwargs={"message": msg_test,
                          "found_by": f"{ctx.author.nick if ctx.author.nick else ctx.author.name}",
                          "found_by_uid": ctx.author.id,
-                         "site_id":site,
-                         "system":system}
+                         "site_id": site,
+                         "system": system}
         )
 
         return await ctx.respond(f"sent message!", ephemeral=True)
@@ -257,6 +255,7 @@ class SiteClaim(commands.Cog):
         await ctx.defer(ephemeral=True)
         tasks.siteclaim_sync_map.delay()
         return await ctx.respond(f"Task added to queue for processing!", ephemeral=True)
+
 
 def setup(bot):
     cog = SiteClaim(bot)
