@@ -33,6 +33,7 @@ setup(
     ],
     install_requires=[
         "allianceauth-discordbot>=3.5.0",
-        "django-solo>=2.0.0"
+        "django-solo>=2.0.0",
+        "rapidfuzz>=3.0.0"
     ],
 )

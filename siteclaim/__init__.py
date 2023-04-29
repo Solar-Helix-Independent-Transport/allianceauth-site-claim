@@ -1,2 +1,2 @@
 default_app_config = 'siteclaim.apps.SiteClaimConfig'
-__version__ = "0.0.1b3"
+__version__ = "0.0.1b4"
