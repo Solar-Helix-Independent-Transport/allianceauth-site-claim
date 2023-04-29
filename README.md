@@ -2,19 +2,21 @@
 
 ## Installation install from pypi or git
 
+- Install the app and pre-reqs
+
 ```
     pip install allianceauth-site-claim
-```
 
 or
 
-```
     pip install git+https://github.com/Solar-Helix-Independent-Transport/allianceauth-site-claim.git
 ```
 
-add `'siteclaim',` to your local.py
-migrate
-restart auth and authbot
+- add `'siteclaim',`
+  and `'solo',` ( if its not already there )
+  to your local.py
+- migrate
+- restart auth and authbot
 
 ## Settings
 
