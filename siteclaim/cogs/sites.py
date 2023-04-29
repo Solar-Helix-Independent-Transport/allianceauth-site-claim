@@ -1,4 +1,5 @@
 # Cog Stuff
+import datetime
 import logging
 from collections import defaultdict
 from typing import Optional
@@ -61,7 +62,8 @@ class ClaimView(ui.View):
             found_by_discord_uid=found_by_uid,
             found_by_discord=found_by,
             system_provided=system,
-            site_id=site_id
+            site_id=site_id,
+
         )
         try:
             db_model.found_by = DiscordUser.objects.get(
@@ -184,11 +186,12 @@ class SiteClaim(commands.Cog):
         await ctx.defer(ephemeral=True)
         user = ctx.author
         msg_test = f"System:[{system}]({dotlan.solar_system_url(system)})\n\nSite ID:`{site}`"
-
+        after = timezone.now() - datetime.timedelta(hours=24)
         # no dupes!
         if models.Site.objects.filter(
             system_provided=system,
-            site_id=site
+            site_id=site,
+            updated__gte=after
         ).exists():
             return await ctx.respond(f"`{system}`:`{site}` has already been pinged!", ephemeral=True)
 
