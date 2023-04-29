@@ -3,4 +3,4 @@ from allianceauth import hooks
 
 @hooks.register('discord_cogs_hook')
 def register_cogs():
-    return ['siteclaim.cogs.sites']
+    return ['siteclaim.cogs.sites', 'siteclaim.cogs.ess']

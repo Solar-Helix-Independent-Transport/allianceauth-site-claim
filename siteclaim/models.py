@@ -57,9 +57,16 @@ class System(models.Model):
 class SiteClaimConfiguration(SingletonModel):
     # ess_groups = models.ManyToManyField(Group, blank=True)
     # site_groups = models.ManyToManyField(Group, blank=True)
-    valid_site_regions = models.ManyToManyField(Region, blank=True)
+    valid_site_regions = models.ManyToManyField(
+        Region, blank=True, related_name="site_regions")
     site_claim_output_channel = models.BigIntegerField(
         null=True, blank=True, default=None)
+
+    valid_ess_regions = models.ManyToManyField(
+        Region, blank=True, related_name="ess_regions")
+    ess_output_channel = models.BigIntegerField(
+        null=True, blank=True, default=None)
+    ess_ping_at_here = models.BooleanField(default=True)
 
     def __str__(self):
         return "Site Claim Configuration"

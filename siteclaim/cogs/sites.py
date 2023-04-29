@@ -16,7 +16,7 @@ from django.core.cache import cache
 from django.utils import timezone
 from rapidfuzz import fuzz, process
 
-from .. import app_settings, constants, models, tasks
+from .. import app_settings, models, tasks
 
 logger = logging.getLogger(__name__)
 
@@ -244,7 +244,7 @@ class SiteClaim(commands.Cog):
         config.save()
         return await ctx.respond(f"Set this channel <#{ctx.channel.id}> to receive all site notifications.!", ephemeral=True)
 
-    @claim_commands.command(name='channel_select', guild_ids=[int(settings.DISCORD_GUILD_ID)])
+    @claim_commands.command(name='sync_map', guild_ids=[int(settings.DISCORD_GUILD_ID)])
     async def slash_map_load(
         self,
         ctx: Interaction,
@@ -255,6 +255,10 @@ class SiteClaim(commands.Cog):
         await ctx.defer(ephemeral=True)
         tasks.siteclaim_sync_map.delay()
         return await ctx.respond(f"Task added to queue for processing!", ephemeral=True)
+
+    def __init__(self, bot) -> None:
+        self.bot = bot
+        super().__init__()
 
 
 def setup(bot):
