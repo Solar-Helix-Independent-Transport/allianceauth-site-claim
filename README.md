@@ -1,10 +1,24 @@
 # Site Claim
 
-Basically, a slash command. System and 3 letter sig for a site
+## Installation install from pypi or git
 
-That logs it in auth, and posts in a separate channel
+```
+    pip install allianceauth-site-claim
+```
 
-- 2 buttons on that message: run by us, run by others
+or
 
-Then some kind of simple ui in auth, even just a spreadsheet export would be fine
-Want to pay someone if they scouted a site and it got run
+```
+    pip install git+https://github.com/Solar-Helix-Independent-Transport/allianceauth-site-claim.git
+```
+
+add `'siteclaim',` to your local.py
+migrate
+restart auth and authbot
+
+## Settings
+
+| Setting                   | Default | What it does                    |
+| ------------------------- | ------- | ------------------------------- |
+| `SITE_CLAIM_ENABLE_SITES` | True    | Enable or disable the Sites Cog |
+| `SITE_CLAIM_ENABLE_ESS`   | True    | Enable or disable the ESS Cog   |
