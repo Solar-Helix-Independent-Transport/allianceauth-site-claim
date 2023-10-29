@@ -68,6 +68,9 @@ class SiteClaimConfiguration(SingletonModel):
         null=True, blank=True, default=None)
     ess_ping_at_here = models.BooleanField(default=True)
 
+    indy_claim_output_channel = models.BigIntegerField(
+        null=True, blank=True, default=None)
+
     def __str__(self):
         return "Site Claim Configuration"
 
@@ -109,3 +112,44 @@ class Site(models.Model):
         System, null=True, default=None, blank=True, on_delete=models.SET_NULL, )
     system_provided = models.CharField(max_length=100)
     site_id = models.CharField(max_length=25)
+
+
+class IndyClaim(models.Model):
+    """
+        Industry claim data for later use/leader board/payments
+    """
+    requested_by_discord = models.CharField(
+        max_length=200, default="", blank=True)
+    requested_by_discord_uid = models.BigIntegerField(
+        null=True, default=None, blank=True, )
+    requested_by = models.ForeignKey(
+        EveCharacter, null=True, default=None, blank=True, on_delete=models.SET_NULL, related_name="indys_found")
+
+    claimed_by_discord = models.CharField(
+        max_length=200, default="", blank=True)
+    claimed_by_discord_uid = models.BigIntegerField(
+        null=True, default=None, blank=True, )
+    claimed_by = models.ForeignKey(
+        EveCharacter, null=True, default=None, blank=True, on_delete=models.SET_NULL, related_name="indys_claimed")
+
+    produced_by_notified_by_discord = models.CharField(
+        max_length=200, default="", blank=True)
+    produced_by_notified_by_discord_uid = models.BigIntegerField(
+        null=True, default=None, blank=True, )
+    produced_by_notified_by = models.ForeignKey(
+        EveCharacter, null=True, default=None, blank=True, on_delete=models.SET_NULL, related_name="indys_notified")
+
+    updated = models.DateTimeField(auto_now=True)
+    message_id = models.BigIntegerField(null=True, default=None, blank=True, )
+    interaction_id = models.CharField(max_length=100)
+
+    system = models.ForeignKey(
+        System, null=True, default=None, blank=True, on_delete=models.SET_NULL, )
+    system_provided = models.CharField(max_length=100)
+
+    requirements = models.TextField()
+
+    class Meta:
+        permissions = (
+            ('can_request_production',
+             'Can request production via indy cog'),)
