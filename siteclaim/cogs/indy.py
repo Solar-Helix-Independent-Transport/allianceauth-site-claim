@@ -34,7 +34,7 @@ class IndyClaimView(ui.View):
     @ui.button(label="Add Producing", custom_id="button-producing-indycog", style=ButtonStyle.blurple)
     async def claim(self, button: ui.Button, interaction: Interaction):
         logger.debug(self.id)
-        message = f"\n**Producing** {interaction.user.nick if interaction.user.nick else interaction.user.name}"
+        message = f"\n**Producing** {interaction.user.display_name if interaction.user.display_name else interaction.user.nick} <@{interaction.user.id}>"
         embed = interaction.message.embeds[0]
         embed.description += message
         await interaction.response.edit_message(embed=embed)
@@ -44,7 +44,7 @@ class IndyClaimView(ui.View):
     @ui.button(label="Add Listed on Market", custom_id="button-market-indycog", style=ButtonStyle.success)
     async def listed(self, button: ui.Button, interaction: Interaction):
         logger.debug(self.id)
-        message = f"\n**Listed on Market** {interaction.user.nick if interaction.user.nick else interaction.user.name}"
+        message = f"\n**Listed on Market** {interaction.user.display_name if interaction.user.display_name else interaction.user.nick} <@{interaction.user.id}>"
         embed = interaction.message.embeds[0]
         embed.description += message
         await interaction.response.edit_message(embed=embed)
