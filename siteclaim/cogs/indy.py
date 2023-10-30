@@ -28,82 +28,28 @@ GREYPLE = 0x99aab5
 
 class IndyClaimView(ui.View):
 
-    embed_text = None
-    message_text = ""
-    created = None
-    producers = []
-    marketers = []
+    def __init__(self):
+        super().__init__(timeout=None)  # timeout of the view must be set to None
 
-    def __init__(self,
-                 *items: ui.Item,
-                 requested_by_uid: int = 0,
-                 requested_by: str = "",
-                 notes: str = "",
-                 system: str = "",
-                 timeout: Optional[float] = 60*60*24,  # 24h from last click
-                 embed: Optional[Embed] = None,
-                 message: Optional[str] = None,
-                 bot=None
-                 ):
-        if embed:
-            if isinstance(embed, dict):
-                self.embed_text = Embed.from_dict(embed)
-            elif isinstance(embed, Embed):
-                self.embed_text = embed
-        if message:
-            self.message_text = message
-        self.bot = bot
-        self.created = timezone.now()
-        super().__init__(*items, timeout=timeout)
-        logger.debug(self.id)
-        db_model = models.IndyClaim.objects.create(
-            interaction_id=self.id,
-            requested_by_discord_uid=requested_by_uid,
-            requested_by_discord=requested_by,
-            system_provided=system,
-            requirements=notes,
-
-        )
-        try:
-            db_model.found_by = DiscordUser.objects.get(
-                uid=requested_by_uid).user.profile.main_character
-        except:
-            logger.warning('user not registered')
-        try:
-            db_model.system = models.System.objects.get(name=system)
-        except:
-            logger.warning('system not found')
-        db_model.save()
-
-    @ui.button(label="Add Producing", style=ButtonStyle.blurple)
+    @ui.button(label="Add Producing", custom_id="button-producing-indycog", style=ButtonStyle.blurple)
     async def claim(self, button: ui.Button, interaction: Interaction):
         logger.debug(self.id)
-        if interaction.user.nick not in self.producers:
-            message = f"\n**Producing** {interaction.user.nick if interaction.user.nick else interaction.user.name}"
-            embed = interaction.message.embeds[0]
-            embed.description += message
-            await interaction.response.edit_message(embed=embed)
-            self.producers.append(interaction.user.nick)
-            await interaction.response.send_message("Added", ephemeral=True)
-        else:
-            await interaction.response.send_message("You're already on the list buddy :-P", ephemeral=True)
+        message = f"\n**Producing** {interaction.user.nick if interaction.user.nick else interaction.user.name}"
+        embed = interaction.message.embeds[0]
+        embed.description += message
+        await interaction.response.edit_message(embed=embed)
+        self.producers.append(interaction.user.nick)
+        await interaction.response.send_message("Added", ephemeral=True)
 
-    @ui.button(label="Add Listed on Market", style=ButtonStyle.success)
+    @ui.button(label="Add Listed on Market", custom_id="button-market-indycog", style=ButtonStyle.success)
     async def listed(self, button: ui.Button, interaction: Interaction):
         logger.debug(self.id)
-        if interaction.user.nick not in self.marketers:
-            message = f"\n**Listed on Market** {interaction.user.nick if interaction.user.nick else interaction.user.name}"
-            embed = interaction.message.embeds[0]
-            embed.description += message
-            await interaction.response.edit_message(embed=embed)
-            self.marketers.append(interaction.user.nick)
-            await interaction.response.send_message("zAdded", ephemeral=True)
-        else:
-            await interaction.response.send_message("You're already on the list buddy :-P", ephemeral=True)
-
-    async def on_timeout(self) -> None:
-        print(vars(self))
-        await super().on_timeout()
+        message = f"\n**Listed on Market** {interaction.user.nick if interaction.user.nick else interaction.user.name}"
+        embed = interaction.message.embeds[0]
+        embed.description += message
+        await interaction.response.edit_message(embed=embed)
+        self.marketers.append(interaction.user.nick)
+        await interaction.response.send_message("zAdded", ephemeral=True)
 
 
 class IndyClaim(commands.Cog):
@@ -169,11 +115,11 @@ class IndyClaim(commands.Cog):
             "",
             embed=e.to_dict(),
             view_class=view_str,
-            view_kwargs={"message": msg_test,
-                         "requested_by": f"{ctx.author.nick if ctx.author.nick else ctx.author.name}",
-                         "requested_by_uid": ctx.author.id,
-                         "notes": items,
-                         "system": system}
+            # view_kwargs={"message": msg_test,
+            #              "requested_by": f"{ctx.author.nick if ctx.author.nick else ctx.author.name}",
+            #              "requested_by_uid": ctx.author.id,
+            #              "notes": items,
+            #              "system": system}
         )
 
         return await ctx.respond(f"sent message!", ephemeral=True)
@@ -225,9 +171,19 @@ class IndyClaim(commands.Cog):
         await message.edit(embed=embed, view=None)
         await ctx.respond(f"done.", ephemeral=True)
 
+    @commands.message_command(name="Reopen Production", guild_ids=[int(settings.DISCORD_GUILD_ID)])
+    @sender_is_admin()
+    async def refresh_view(self, ctx, message: Message):
+        await message.edit(view=IndyClaimView())
+        await ctx.respond(f"done.", ephemeral=True)
+
     def __init__(self, bot) -> None:
         self.bot = bot
         super().__init__()
+
+    @commands.Cog.listener("on_ready")
+    async def on_bot_ready(self):
+        self.bot.add_view(IndyClaimView())
 
 
 def setup(bot):
