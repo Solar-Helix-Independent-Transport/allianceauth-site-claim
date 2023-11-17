@@ -112,7 +112,7 @@ class IndyClaim(commands.Cog):
 
         send_channel_message_by_discord_id.delay(
             output_channel,
-            "",
+            "@everyone",
             embed=e.to_dict(),
             view_class=view_str,
             # view_kwargs={"message": msg_test,
